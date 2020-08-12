@@ -1,0 +1,4 @@
+flask
+flask-jwt
+flask-sqlalchemy
+mypy
