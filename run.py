@@ -14,3 +14,6 @@ db = SQLAlchemy(app)
 migrate = Migrate()
 migrate.init_app(app, db)
 
+import views, models, resources
+
+api.add_resource(resources.UserRegistration, '/registration')
