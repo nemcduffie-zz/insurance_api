@@ -1,4 +1,11 @@
+alembic
 flask
-flask-jwt
+flask_jwt_extended
+flask-marshmallow
+flask_migrate
+flask-restful
 flask-sqlalchemy
 mypy
+passlib
+psycopg2-binary
+python-dotenv

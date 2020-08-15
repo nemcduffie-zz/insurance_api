@@ -1,4 +1,4 @@
-from insurance_api import app
+from run import app
 
 
 @app.route('/hello')
