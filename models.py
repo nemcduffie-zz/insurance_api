@@ -1,6 +1,7 @@
 from run import db
 from passlib.hash import pbkdf2_sha256
 
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -13,8 +14,8 @@ class User(db.Model):
         db.session.commit()
     
     @classmethod
-    def find_user(cls, username):
-        return cls.query.filter_by(username=username).first()
+    def find_user(dbsession, username):
+        return dbsession.query.filter_by(username=username).first()
 
     @staticmethod
     def pw_hash(password):
@@ -34,6 +35,6 @@ class RevokedToken(db.Model):
         db.session.commit()
     
     @classmethod
-    def is_jti_blacklisted(cls, jti):
-        query = cls.query.filter_by(jti=jti).first()
+    def is_jti_blacklisted(dbsession, jti):
+        query = dbsession.query.filter_by(jti=jti).first()
         return bool(query)

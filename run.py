@@ -7,6 +7,7 @@ from config import config_settings
 app = Flask(__name__)
 api = Api(app)
 
+# database.init_app(app)
 
 app.config.from_object(config_settings['development'])
 
