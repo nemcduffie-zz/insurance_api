@@ -59,7 +59,7 @@ class Logout(Resource):
     def post(self) -> Tuple[Dict, int]:
         jti = get_raw_jwt()['jti']
         try:
-            revoked_token = RevokedToken(jti = jti)
+            revoked_token = RevokedToken(jti=jti)
             revoked_token.save()
             return {'message': 'Access token has been revoked'}, 200
         except:
@@ -83,15 +83,29 @@ class Questionaire(Resource):
         username = get_jwt_identity()
         user = User.find_user(username)
         if not user:
-            return {'message': 'Wrong credentials'},  # TODO: status code
+            return {'message': 'Wrong credentials'}  # TODO: status code
 
         for field in data.keys():
-            setattr(User, field, data[field])
+            setattr(user, field, data[field])
         user.save()
         return {
             'message': 'User {} was successfully updated'.format(username),
             'recommendations': insurance_recs(user)
         }, 200
+
+    @jwt_required
+    def get(self) -> Tuple[Dict, int]:
+        username = get_jwt_identity()
+        user = User.find_user(username)
+        if not user:
+            return {'message': 'Wrong credentials'}  # TODO: status code
+        if not user.name:
+            return {'message': 'Please fill in your user infromation'}  # TODO: status code
+        return {
+            'message': 'User {}\'s recommendations successfully collected'.format(username),
+            'recommendations': insurance_recs(user)
+        }, 200
+
 
 
 class Secret(Resource):
