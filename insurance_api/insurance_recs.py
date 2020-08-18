@@ -1,4 +1,5 @@
 from typing import Dict
+from copy import deepcopy
 
 
 INSURANCE_TYPES = {
@@ -47,8 +48,8 @@ INSURANCE_TYPES = {
 
 def insurance_recs(User) -> Dict:
     recs = {
-        'needed': INSURANCE_TYPES['needed'],
-        'optional': INSURANCE_TYPES['optional'],
+        'needed': deepcopy(INSURANCE_TYPES['needed']),
+        'optional': deepcopy(INSURANCE_TYPES['optional']),
         'not_needed': []
     }
     if User.children:

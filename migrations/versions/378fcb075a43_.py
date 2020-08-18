@@ -1,4 +1,4 @@
-"""empty message
+"""create initial user and revoked_token models
 
 Revision ID: 378fcb075a43
 Revises: 

@@ -9,6 +9,7 @@ class Config():
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    PROPAGATE_EXCEPTIONS = True
 
 
 class TestConfig():
@@ -19,6 +20,7 @@ class TestConfig():
     JWT_SECRET_KEY = 'testing-jwt-secret-key'
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    PROPAGATE_EXCEPTIONS = True
     TESTING=True
 
 
