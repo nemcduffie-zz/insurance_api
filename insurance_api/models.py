@@ -6,6 +6,9 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
+    ''' Model to represent User's login and personal
+        data for insurance recommendations.
+    '''
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -38,6 +41,9 @@ class User(db.Model):
 
 
 class RevokedToken(db.Model):
+    ''' Model to represent tokens that are possibly still
+        active but have been revoked by the user logging out.
+    '''
     __tablename__ = 'revoked_tokens'
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(120))

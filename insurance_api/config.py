@@ -2,6 +2,8 @@ import os
 
 
 class Config():
+    """ Configuration for the app.
+    """
     DEBUG = True if os.getenv('DEBUG') == 'True' else False
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -13,6 +15,8 @@ class Config():
 
 
 class TestConfig():
+    """ Configuration for testing the app.
+    """
     DEBUG = False
     # SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -1,4 +1,5 @@
-CHUCK_RECS = {  # Fake user json for testing
+# Fake user json for testing
+CHUCK_RECS = {
     'needed': [
         {
             'type':'Personal Liability',

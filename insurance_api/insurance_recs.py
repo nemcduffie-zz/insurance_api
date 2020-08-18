@@ -2,6 +2,7 @@ from typing import Dict
 from copy import deepcopy
 
 
+# The possible insurance options
 INSURANCE_TYPES = {
     'needed': [
         {
@@ -47,6 +48,9 @@ INSURANCE_TYPES = {
 
 
 def insurance_recs(User) -> Dict:
+    ''' Method to organize the user's insurance
+        recommendations based on their personal info.
+    '''
     recs = {
         'needed': deepcopy(INSURANCE_TYPES['needed']),
         'optional': deepcopy(INSURANCE_TYPES['optional']),

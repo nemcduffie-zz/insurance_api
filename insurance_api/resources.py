@@ -11,11 +11,16 @@ from insurance_api.insurance_recs import insurance_recs
 
 
 class RegistrationSchema(Schema):
+    ''' Schema for the parsing of Registration and Login requests.
+    '''
     username = fields.String(required=True)
     password = fields.String(required=True)
 
 
 class Registration(Resource):
+    ''' Resource for User registation, logs in the user automatically
+        in the form of returning an access token.
+    '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
         data = schema.dump(request.get_json())
@@ -37,14 +42,15 @@ class Registration(Resource):
             return {
                 'message': 'User {} was successfully created'.format(
                     data['username']),
-                'access_token': access_token,
-                'refresh_token': refresh_token
+                'access_token': access_token
             }, 200
         except exc.SQLAlchemyError:
             return {'message': 'User wasn\'t able to be added to db'}, 500
 
 
 class Login(Resource):
+    ''' Resource for User login for already registered users.
+    '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
         data = schema.dump(request.get_json())
@@ -55,14 +61,16 @@ class Login(Resource):
             refresh_token = create_refresh_token(identity = data['username'])
             return {
                 'message': 'Logged in as {}'.format(user.username),
-                'access_token': access_token,
-                'refresh_token': refresh_token
+                'access_token': access_token
             }, 200
         else:
             return {'message': 'Wrong credentials'}, 422
 
 
 class Logout(Resource):
+    ''' Resource for User logout, requires a valid
+        token that is then invalidated.
+    '''
     @jwt_required
     def post(self) -> Tuple[Dict, int]:
         jti = get_raw_jwt()['jti']
@@ -75,12 +83,16 @@ class Logout(Resource):
 
 
 def occupation_validator(value):
+    ''' Validator to ensure the occupation_type is one of three options.
+    '''
     if value not in ['Employed', 'Student', 'Self-employed']:
         raise ValueError 
     return x
 
 
 class QuestionaireSchema(Schema):
+    ''' Schema for the parsing of the Questionaire requests.
+    '''
     name = fields.String(required=True)
     address = fields.String(required=True)
     num_children = fields.Integer(required=True)
@@ -91,8 +103,15 @@ class QuestionaireSchema(Schema):
 
 
 class Questionaire(Resource):
+    ''' Resource for handling of questionaire data,
+        all methods require a valid token.
+    '''
     @jwt_required
     def post(self) -> Tuple[Dict, int]:
+        ''' POST request method that accepts and saves the user's
+            questionaire data and returns the user's insurance
+            reccomendations based on that saved data.
+        '''
         schema = QuestionaireSchema()
         data = schema.dump(request.get_json())
 
@@ -113,6 +132,10 @@ class Questionaire(Resource):
 
     @jwt_required
     def get(self) -> Tuple[Dict, int]:
+        ''' GET request method returns the user's insurance
+            reccomendations based on thier questionaire data
+            saved by the POST request.
+        '''
         username = get_jwt_identity()
         user = User.find_user(username)
         if not user:
@@ -126,6 +149,9 @@ class Questionaire(Resource):
 
 
 class Secret(Resource):
+    ''' Resource requiring valid token, used
+        for testing and development.
+    '''
     @jwt_required
     def get(self) -> Tuple[Dict, int]:
         return {
