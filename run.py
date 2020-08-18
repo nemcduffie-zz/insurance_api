@@ -12,7 +12,8 @@ def create_app(config_class='development'):
     jwt = JWTManager(app)
     api = Api(app)
 
-    from insurance_api.resources import (Registration, Login, Logout, Secret)
+    from insurance_api.resources import (Registration, Login, Logout,
+                                         Questionaire, Secret)
     from insurance_api.models import db
 
     db.init_app(app)
@@ -22,7 +23,7 @@ def create_app(config_class='development'):
     api.add_resource(Registration, '/registration')
     api.add_resource(Login, '/login')
     api.add_resource(Logout, '/logout')
-    # api.add_resource(TokenRefresh, '/token-refresh')
+    api.add_resource(Questionaire, '/questionaire')
     api.add_resource(Secret, '/secret')
     
     from insurance_api.models import RevokedToken

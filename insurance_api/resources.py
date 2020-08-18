@@ -2,8 +2,9 @@ from typing import Dict, Tuple
 from flask_restful import Resource, reqparse
 from flask_restplus import inputs
 from insurance_api.models import User, RevokedToken
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, #jwt_refresh_required,
-                                get_jwt_identity, get_raw_jwt)
+from insurance_api.insurance_recs import insurance_recs
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                jwt_required, get_jwt_identity, get_raw_jwt)
 
 
 user_parser = reqparse.RequestParser()
@@ -65,12 +66,32 @@ class Logout(Resource):
             return {'message': 'Something went wrong'}, 500
 
 
-# class TokenRefresh(Resource):
-#     @jwt_refresh_required
-#     def post(self) -> Tuple[Dict, int]:
-#         curr_user = get_jwt_identity()
-#         access_token = create_access_token(identity = curr_user)
-#         return {'access_token': access_token}
+questionaire_parser = reqparse.RequestParser()
+questionaire_parser.add_argument('name', help ='This field cannot be blank', required=True)
+questionaire_parser.add_argument('address', help ='This field cannot be blank', required=True)
+questionaire_parser.add_argument('children', type=inputs.boolean, help ='This field cannot be blank', required=True)
+questionaire_parser.add_argument('num_children', type=int, required=False)  #TODO: validate if above is false
+questionaire_parser.add_argument('occupation', help ='This field cannot be blank', required=True)
+questionaire_parser.add_argument('occupation_type', help ='This field cannot be blank', required=True)  #TODO: validate between three choices? Employed, Student, Self-employed
+questionaire_parser.add_argument('email', help ='This field cannot be blank', required=True)
+
+
+class Questionaire(Resource):
+    @jwt_required
+    def post(self) -> Tuple[Dict, int]:
+        data = questionaire_parser.parse_args()
+        username = get_jwt_identity()
+        user = User.find_user(username)
+        if not user:
+            return {'message': 'Wrong credentials'},  # TODO: status code
+
+        for field in data.keys():
+            setattr(User, field, data[field])
+        user.save()
+        return {
+            'message': 'User {} was successfully updated'.format(username),
+            'recommendations': insurance_recs(user)
+        }, 200
 
 
 class Secret(Resource):
@@ -78,4 +99,4 @@ class Secret(Resource):
     def get(self) -> Tuple[Dict, int]:
         return {
             'answer': 42
-        }
+        }, 200
