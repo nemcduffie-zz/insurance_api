@@ -29,7 +29,7 @@ def create_app(config_class='development'):
     @jwt.token_in_blacklist_loader
     def check_if_token_in_blacklist(decrypted_token) -> bool:
         jti = decrypted_token['jti']
-        return models.RevokedToken.is_jti_blacklisted(jti)
+        return RevokedToken.is_jti_blacklisted(jti)
 
     return app
 
