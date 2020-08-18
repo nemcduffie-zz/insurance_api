@@ -1,23 +1,24 @@
-from typing import Dict, Tuple
-from flask_restful import Resource, reqparse
-from flask_restplus import inputs
-from sqlalchemy import exc
-from insurance_api.models import User, RevokedToken
-from insurance_api.insurance_recs import insurance_recs
+from flask import request
+from flask_restful import Resource
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, get_jwt_identity, get_raw_jwt)
+from sqlalchemy import exc
+from typing import Dict, Tuple
+from marshmallow import Schema, fields, validate
+
+from insurance_api.models import User, RevokedToken
+from insurance_api.insurance_recs import insurance_recs
 
 
-HELP = 'This field cannot be blank'
-
-user_parser = reqparse.RequestParser()
-user_parser.add_argument('username', help=HELP, required=True)
-user_parser.add_argument('password', help=HELP, required=True)
+class RegistrationSchema(Schema):
+    username = fields.String(required=True)
+    password = fields.String(required=True)
 
 
 class Registration(Resource):
     def post(self) -> Tuple[Dict, int]:
-        data = user_parser.parse_args()
+        schema = RegistrationSchema()
+        data = schema.dump(request.get_json())
         
         if User.find_user(data['username']):
             return {
@@ -45,14 +46,15 @@ class Registration(Resource):
 
 class Login(Resource):
     def post(self) -> Tuple[Dict, int]:
-        data = user_parser.parse_args()
-        curr_user = User.find_user(data['username'])
+        schema = RegistrationSchema()
+        data = schema.dump(request.get_json())
+        user = User.find_user(data['username'])
 
-        if curr_user and User.verify_hash(data['password'], curr_user.password):
+        if user and User.verify_hash(data['password'], user.password):
             access_token = create_access_token(identity = data['username'])
             refresh_token = create_refresh_token(identity = data['username'])
             return {
-                'message': 'Logged in as {}'.format(curr_user.username),
+                'message': 'Logged in as {}'.format(user.username),
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }, 200
@@ -72,21 +74,28 @@ class Logout(Resource):
             return {'message': 'Something went wrong'}, 500
 
 
-questionaire_parser = reqparse.RequestParser()
-questionaire_parser.add_argument('name', help=HELP, required=True)
-questionaire_parser.add_argument('address', help=HELP, required=True)
-questionaire_parser.add_argument('children', type=inputs.boolean,
-                                 help=HELP, required=True)
-questionaire_parser.add_argument('num_children', type=int, required=False)  #TODO: validate if above is false
-questionaire_parser.add_argument('occupation', help=HELP, required=True)
-questionaire_parser.add_argument('occupation_type', help=HELP, required=True)  #TODO: validate between three choices? Employed, Student, Self-employed
-questionaire_parser.add_argument('email', help=HELP, required=True)
+def occupation_validator(value):
+    if value not in ['Employed', 'Student', 'Self-employed']:
+        raise ValueError 
+    return x
+
+
+class QuestionaireSchema(Schema):
+    name = fields.String(required=True)
+    address = fields.String(required=True)
+    num_children = fields.Integer(required=True)
+    occupation = fields.String(required=True)
+    occupation_type = fields.String(required=True,
+        validate=validate.OneOf(['Employed', 'Student', 'Self-employed']))
+    email = fields.Email(required=True)
 
 
 class Questionaire(Resource):
     @jwt_required
     def post(self) -> Tuple[Dict, int]:
-        data = questionaire_parser.parse_args()
+        schema = QuestionaireSchema()
+        data = schema.dump(request.get_json())
+
         username = get_jwt_identity()
         user = User.find_user(username)
         if not user:
@@ -94,6 +103,7 @@ class Questionaire(Resource):
 
         for field in data.keys():
             setattr(user, field, data[field])
+        user.children = True if user.num_children > 0 else False
         user.save()
 
         return {

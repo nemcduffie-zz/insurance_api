@@ -1,11 +1,8 @@
-alembic
-click
 flask
 flask_jwt_extended
 flask-marshmallow
 flask_migrate
 flask-restful
-flask_restplus
 flask-sqlalchemy
 mypy
 passlib

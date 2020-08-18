@@ -73,7 +73,6 @@ def test_questionaire(app, client) -> None:
     user_info = {
         'name': 'Chuck',
         'address': '15774 Longwood Dr. Los Gatos CA 95032',
-        'children': True,
         'num_children': 1,
         'occupation': 'Python Developer',
         'occupation_type': 'Employed',
