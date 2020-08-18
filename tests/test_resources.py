@@ -78,7 +78,7 @@ def test_questionaire(app, client) -> None:
         'occupation': 'Python Developer',
         'occupation_type': 'Employed',
         'email': 'chuck@chuck.com'
-    }    
+    }
     response = client.post(
         '/questionaire',
         headers=headers,
@@ -88,6 +88,16 @@ def test_questionaire(app, client) -> None:
     assert response.status_code == 200
     data = json.loads(response.get_data(as_text=True))
     assert data.get('recommendations') == CHUCK_RECS
+
+    response = client.get(
+        '/questionaire',
+        headers=headers,
+        content_type='application/json')
+
+    assert response.status_code == 200
+    data = json.loads(response.get_data(as_text=True))
+    assert data.get('recommendations') == CHUCK_RECS
+
     response = client.post(
         '/logout',
         headers=headers,
