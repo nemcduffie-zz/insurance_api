@@ -4,7 +4,7 @@ import os
 class Config():
     """ Configuration for the app.
     """
-    DEBUG = True if os.getenv('DEBUG') == 'True' else False
+    DEBUG = bool(os.getenv('DEBUG'))
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY')

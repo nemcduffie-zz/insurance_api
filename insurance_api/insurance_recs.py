@@ -41,13 +41,13 @@ INSURANCE_TYPES = {
             'type': 'Household Content',
             'conpany': 'One Insurance',
             'price_monthly': '€7.50'
-        }, 
+        }
     ]
 
 }
 
 
-def insurance_recs(User) -> Dict:
+def insurance_recs(user) -> Dict:
     ''' Method to organize the user's insurance
         recommendations based on their personal info.
     '''
@@ -56,11 +56,11 @@ def insurance_recs(User) -> Dict:
         'optional': deepcopy(INSURANCE_TYPES['optional']),
         'not_needed': []
     }
-    if User.children:
+    if user.children:
         recs['needed'].append(INSURANCE_TYPES['children'])
     else:
         recs['not_needed'].append(INSURANCE_TYPES['children'])
-    if User.occupation_type == 'Self-employed':
+    if user.occupation_type == 'Self-employed':
         recs['needed'].append(INSURANCE_TYPES['health']['private'])
         recs['not_needed'].append(INSURANCE_TYPES['health']['public'])
     else:

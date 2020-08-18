@@ -79,9 +79,18 @@ def test_questionaire(app, client) -> None:
         'address': '15774 Longwood Dr. Los Gatos CA 95032',
         'num_children': 1,
         'occupation': 'Python Developer',
-        'occupation_type': 'Employed',
+        'occupation_type': 'Not-employed',
         'email': 'chuck@chuck.com'
     }
+    response = client.post(
+        '/questionaire',
+        headers=headers,
+        data=json.dumps(user_info),
+        content_type='application/json')
+    # Request should fail because of non valid occupation_type
+    assert response.status_code == 401
+
+    user_info['occupation_type'] = 'Employed'
     response = client.post(
         '/questionaire',
         headers=headers,
