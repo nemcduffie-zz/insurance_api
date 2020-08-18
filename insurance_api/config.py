@@ -21,7 +21,7 @@ class TestConfig():
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     PROPAGATE_EXCEPTIONS = True
-    TESTING=True
+    TESTING = True
 
 
 config_settings = {
