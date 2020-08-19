@@ -4,7 +4,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, get_jwt_identity, get_raw_jwt)
 from sqlalchemy import exc
 from typing import Dict, Tuple
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, ValidationError
 
 from insurance_api.models import User, RevokedToken
 from insurance_api.insurance_recs import insurance_recs
@@ -23,18 +23,21 @@ class Registration(Resource):
     '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
-        data = schema.dump(request.get_json())
-        
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return {'message': err.messages}, 401
+
         if User.find_user(data['username']):
             return {
                 'message': 'User {} already exists'.format(data['username'])
             }, 422
-        
+
         new_user = User(
-            username = data['username'],
-            password = User.pw_hash(data['password'])
+            username=data['username'],
+            password=User.pw_hash(data['password'])
         )
-        
+
         try:
             new_user.save()
             access_token = create_access_token(identity=data['username'])
@@ -53,12 +56,15 @@ class Login(Resource):
     '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
-        data = schema.dump(request.get_json())
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return {'message': err.messages}, 401
         user = User.find_user(data['username'])
 
         if user and User.verify_hash(data['password'], user.password):
-            access_token = create_access_token(identity = data['username'])
-            refresh_token = create_refresh_token(identity = data['username'])
+            access_token = create_access_token(identity=data['username'])
+            refresh_token = create_refresh_token(identity=data['username'])
             return {
                 'message': 'Logged in as {}'.format(user.username),
                 'access_token': access_token
@@ -82,14 +88,6 @@ class Logout(Resource):
             return {'message': 'Something went wrong'}, 500
 
 
-def occupation_validator(value):
-    ''' Validator to ensure the occupation_type is one of three options.
-    '''
-    if value not in ['Employed', 'Student', 'Self-employed']:
-        raise ValueError 
-    return x
-
-
 class QuestionaireSchema(Schema):
     ''' Schema for the parsing of the Questionaire requests.
     '''
@@ -98,7 +96,9 @@ class QuestionaireSchema(Schema):
     num_children = fields.Integer(required=True)
     occupation = fields.String(required=True)
     occupation_type = fields.String(required=True,
-        validate=validate.OneOf(['Employed', 'Student', 'Self-employed']))
+                                    validate=validate.OneOf(['Employed',
+                                                             'Student',
+                                                             'Self-employed']))
     email = fields.Email(required=True)
 
 
@@ -113,7 +113,10 @@ class Questionaire(Resource):
             reccomendations based on that saved data.
         '''
         schema = QuestionaireSchema()
-        data = schema.dump(request.get_json())
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return {'message': err.messages}, 401
 
         username = get_jwt_identity()
         user = User.find_user(username)
