@@ -1,0 +1,5 @@
+DEBUG=True
+SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost/insurance_api
+SQLALCHEMY_TEST_DATABASE_URI=postgresql://postgres:postgres@localhost/insurance_api_test
+SECRET_KEY = 'some-secret-string'
+JWT_SECRET_KEY = 'jwt-secret-string'

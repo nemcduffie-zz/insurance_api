@@ -8,11 +8,29 @@
 
 ### To initialize application:
 ```
+cp dotenv.example .env
 python3.8 -m venv anenv
 source anenv/bin/activate
-pip install -r requirements.txt --no-use-pep517
-FLASK_APP=run.py flask run
+sh setup.sh
 ```
 
-export FLASK_APP=insurance_api
+### To run the application
+```
 flask run
+```
+(CTRL+C to quit)
+
+### To run tests
+```
+python -m pytest tests/
+```
+
+### More information:
+
+* After initializing the app it would be a good idea to change SECRET_KEY and JWT_SECRET_KEY in your .env file to something a bit more secretive.
+* Feel free to set your psql db to whatever uri you would like, just make sure to update .env and setup.sh before (re)running setup.sh.
+
+
+### Examples of successful requests can be run in Postman here
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/654145739aa4e365a1c0)
