@@ -7,8 +7,8 @@ psql postgresql://postgres:postgres@localhost -c "drop database insurance_api;"
 psql postgresql://postgres:postgres@localhost -c "create database insurance_api with 
     OWNER = postgres
     ENCODING = 'UTF8';"
-psql postgresql://postgres:postgres@localhost -c "drop database insurance_api;"
-psql postgresql://postgres:postgres@localhost -c "create database insurance_api with 
+psql postgresql://postgres:postgres@localhost -c "drop database insurance_api_test;"
+psql postgresql://postgres:postgres@localhost -c "create database insurance_api_test with 
     OWNER = postgres
     ENCODING = 'UTF8';"
 
