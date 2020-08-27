@@ -2,7 +2,7 @@ from flask import json
 from tests.chuck_recs import CHUCK_RECS
 
 
-def test_token_access(app, client) -> None:
+def test_failed_secret_before_login(app, client) -> None:
     ''' Tests the User registration/login/logout flow.
     '''
     response = client.get(
@@ -12,6 +12,8 @@ def test_token_access(app, client) -> None:
     # Should fail because user is not registered
     assert response.status_code == 401
 
+
+def test_registration(app, client) -> None:
     response = client.post(
         '/registration',
         data=json.dumps({'username': 'test',
@@ -21,6 +23,8 @@ def test_token_access(app, client) -> None:
     assert response.status_code == 200
     data = json.loads(response.get_data(as_text=True))
 
+
+def test_login(app, client) -> None:
     response = client.post(
         '/login',
         data=json.dumps({'username': 'test',
@@ -33,6 +37,8 @@ def test_token_access(app, client) -> None:
     assert token
     headers = {'Authorization': 'Bearer {}'.format(token)}
 
+
+def test_success_secret(app, client, headers) -> None:
     response = client.get(
         '/secret',
         headers=headers,
@@ -42,24 +48,8 @@ def test_token_access(app, client) -> None:
     assert response.status_code == 200
     assert data.get('answer') == 42
 
-    response = client.post(
-        '/logout',
-        headers=headers,
-        content_type='application/json')
-    data = json.loads(response.get_data(as_text=True))
-    # Should successfully logout, token should now be invalid
-    assert response.status_code == 200
 
-    response = client.get(
-        '/secret',
-        headers=headers,
-        content_type='application/json')
-    data = json.loads(response.get_data(as_text=True))
-    # Secret should now fail since token is invalid
-    assert response.status_code == 401
-
-
-def test_questionaire(app, client) -> None:
+def test_questionaire(app, client, headers) -> None:
     ''' Tests the Questionaire Resource that returns insurance options.
     '''
     response = client.post(
@@ -109,11 +99,3 @@ def test_questionaire(app, client) -> None:
     assert response.status_code == 200
     data = json.loads(response.get_data(as_text=True))
     assert data.get('recommendations') == CHUCK_RECS
-
-    response = client.post(
-        '/logout',
-        headers=headers,
-        content_type='application/json')
-    data = json.loads(response.get_data(as_text=True))
-    # Should successfully logout
-    assert response.status_code == 200

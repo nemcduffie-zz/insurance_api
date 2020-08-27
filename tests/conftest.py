@@ -1,5 +1,6 @@
 import pytest
 
+from flask_jwt_extended import create_access_token
 from run import create_app
 from insurance_api.models import db
 from insurance_api.config import config_settings
@@ -23,3 +24,10 @@ def client(app):
     '''
     client = app.test_client()
     return client
+
+
+@pytest.fixture(scope='function')
+def headers(app, client):
+    token = create_access_token(identity='test')
+    headers = {'Authorization': 'Bearer {}'.format(token)}
+    return headers

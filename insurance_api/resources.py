@@ -1,12 +1,12 @@
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import (create_access_token, create_refresh_token,
+from flask_jwt_extended import (create_access_token,
                                 jwt_required, get_jwt_identity, get_raw_jwt)
 from sqlalchemy import exc
 from typing import Dict, Tuple
 from marshmallow import Schema, fields, validate, ValidationError
 
-from insurance_api.models import User, RevokedToken
+from insurance_api.models import User
 from insurance_api.insurance_recs import insurance_recs
 
 
@@ -41,7 +41,6 @@ class Registration(Resource):
         try:
             new_user.save()
             access_token = create_access_token(identity=data['username'])
-            refresh_token = create_refresh_token(identity=data['username'])
             return {
                 'message': 'User {} was successfully created'.format(
                     data['username']),
@@ -64,28 +63,12 @@ class Login(Resource):
 
         if user and User.verify_hash(data['password'], user.password):
             access_token = create_access_token(identity=data['username'])
-            refresh_token = create_refresh_token(identity=data['username'])
             return {
                 'message': 'Logged in as {}'.format(user.username),
                 'access_token': access_token
             }, 200
         else:
             return {'message': 'Wrong credentials'}, 422
-
-
-class Logout(Resource):
-    ''' Resource for User logout, requires a valid
-        token that is then invalidated.
-    '''
-    @jwt_required
-    def post(self) -> Tuple[Dict, int]:
-        jti = get_raw_jwt()['jti']
-        try:
-            revoked_token = RevokedToken(jti=jti)
-            revoked_token.save()
-            return {'message': 'Access token has been revoked'}, 200
-        except:
-            return {'message': 'Something went wrong'}, 500
 
 
 class QuestionaireSchema(Schema):

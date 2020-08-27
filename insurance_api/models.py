@@ -38,21 +38,3 @@ class User(db.Model):
     @staticmethod
     def verify_hash(password, hash) -> str:
         return pbkdf2_sha256.verify(password, hash)
-
-
-class RevokedToken(db.Model):
-    ''' Model to represent tokens that are possibly still
-        active but have been revoked by the user logging out.
-    '''
-    __tablename__ = 'revoked_tokens'
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(120))
-
-    def save(self) -> None:
-        db.session.add(self)
-        db.session.commit()
-
-    @classmethod
-    def is_jti_blacklisted(cls, jti) -> bool:
-        query = cls.query.filter_by(jti=jti).first()
-        return bool(query)
