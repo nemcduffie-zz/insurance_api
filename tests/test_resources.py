@@ -78,7 +78,7 @@ def test_questionaire(app, client, headers) -> None:
         data=json.dumps(user_info),
         content_type='application/json')
     # Request should fail because of non valid occupation_type
-    assert response.status_code == 401
+    assert response.status_code == 422
 
     user_info['occupation_type'] = 'Employed'
     response = client.post(

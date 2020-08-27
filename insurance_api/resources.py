@@ -23,10 +23,7 @@ class Registration(Resource):
     '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
-        try:
-            data = schema.load(request.get_json())
-        except ValidationError as err:
-            return {'message': err.messages}, 401
+        data = schema.load(request.get_json())
 
         if User.find_user(data['username']):
             return {
@@ -37,17 +34,13 @@ class Registration(Resource):
             username=data['username'],
             password=User.pw_hash(data['password'])
         )
-
-        try:
-            new_user.save()
-            access_token = create_access_token(identity=data['username'])
-            return {
-                'message': 'User {} was successfully created'.format(
-                    data['username']),
-                'access_token': access_token
-            }, 200
-        except exc.SQLAlchemyError:
-            return {'message': 'User wasn\'t able to be added to db'}, 500
+        new_user.save()
+        access_token = create_access_token(identity=data['username'])
+        return {
+            'message': 'User {} was successfully created'.format(
+                data['username']),
+            'access_token': access_token
+        }, 200
 
 
 class Login(Resource):
@@ -55,10 +48,7 @@ class Login(Resource):
     '''
     def post(self) -> Tuple[Dict, int]:
         schema = RegistrationSchema()
-        try:
-            data = schema.load(request.get_json())
-        except ValidationError as err:
-            return {'message': err.messages}, 401
+        data = schema.load(request.get_json())
         user = User.find_user(data['username'])
 
         if user and User.verify_hash(data['password'], user.password):
@@ -96,10 +86,7 @@ class Questionaire(Resource):
             reccomendations based on that saved data.
         '''
         schema = QuestionaireSchema()
-        try:
-            data = schema.load(request.get_json())
-        except ValidationError as err:
-            return {'message': err.messages}, 401
+        data = schema.load(request.get_json())
 
         username = get_jwt_identity()
         user = User.find_user(username)

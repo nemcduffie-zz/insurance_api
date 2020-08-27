@@ -5,6 +5,8 @@ from flask_restful import Api
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from insurance_api.config import config_settings
+from marshmallow import ValidationError
+
 
 def create_app(config_class='development'):
     ''' Method to initalize app and it's api routes.
@@ -28,6 +30,10 @@ def create_app(config_class='development'):
     api.add_resource(Login, '/login')
     api.add_resource(Questionaire, '/questionaire')
     api.add_resource(Secret, '/secret')
+
+    @app.errorhandler(ValidationError)
+    def handle_bad_request(e):
+        return e.messages, 422
 
     return app
 
